@@ -3,6 +3,8 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const exp = require("constants");
 const db = require("./database/database.js");
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const app = express();
 
@@ -26,8 +28,16 @@ app.route("/login")
                 console.log(err);
             }
             else{
-                if(foundUser && foundUser.password == req.body.password){
-                    res.render("secrets");
+                if(foundUser){
+                    bcrypt.compare(req.body.password , foundUser.password , function(err , result){
+                        if(result){
+                            res.render("secrets");
+                        }
+                        else{
+                            res.redirect("/login");
+                        }
+                    })
+
                 }
                 else{
                     res.redirect("/login");
@@ -42,18 +52,21 @@ app.route("/register")
     })
     .post(function(req , res){
 
-        const User = new db.users({
-            email : req.body.username,
-            password : req.body.password
-        })
+        bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
+            const User = new db.users({
+                email : req.body.username,
+                password : hash
+            })
 
-        User.save(function(err){
-            if(err){
-                console.log(err);
-            }else{
-                res.render("secrets"); 
-            }
-        })
+            User.save(function(err){
+                if(err){
+                    console.log(err);
+                }else{
+                    res.render("secrets"); 
+                }
+            })
+
+        });
 
     });
 

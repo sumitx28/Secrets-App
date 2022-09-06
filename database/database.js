@@ -1,5 +1,6 @@
+const md5 = require("md5");
 const mongoose = require("mongoose");
-const encrypt = require("mongoose-encryption");
+// const encrypt = require("mongoose-encryption");
 require("dotenv").config();
 
 mongoose.connect("mongodb://127.0.0.1:27017/userDB").then(function(){
@@ -11,8 +12,9 @@ const userSchema = new mongoose.Schema({
     password : String
 })
 
-const secret = "thisismylittlenewsecret";
-userSchema.plugin(encrypt , {secret : secret , encryptedFields : ["password"]});
+// userSchema.plugin(encrypt , {secret : process.env.SECRET_KEY , encryptedFields : ["password"]});
+
+
 
 const User = mongoose.model("User" , userSchema);
 
